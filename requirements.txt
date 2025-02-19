@@ -1,0 +1,21 @@
+# Core dependencies
+numpy>=1.21.0
+matplotlib>=3.4.0
+gym==0.25.2
+torch>=1.9.0
+stable-baselines3==2.1.0
+tqdm>=4.62.0
+tensorboard>=2.7.0
+scipy>=1.7.0
+pyglet>=1.5.0  # For rendering
+box2d-py>=2.3.8  # For some environments
+
+# Development dependencies
+pytest>=6.2.5
+pytest-cov>=2.12.0
+black>=22.3.0
+flake8>=3.9.0
+isort>=5.9.0
+mypy>=0.910
+pre-commit>=2.15.0
+coverage>=6.2 
