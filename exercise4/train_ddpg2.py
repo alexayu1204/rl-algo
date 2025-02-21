@@ -186,7 +186,7 @@ def train():
     tau = 0.005
     actor_lr = 1e-4
     critic_lr = 1e-3
-    max_timesteps = 200000  # reduced from 400k to 200k
+    max_timesteps = 400000  # reduced from 400k to 200k
     episode_length = 1600
     batch_size = 64
     replay_capacity = int(1e6)
