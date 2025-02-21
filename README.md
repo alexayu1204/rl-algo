@@ -2,6 +2,215 @@
 
 This repository contains implementations of various reinforcement learning algorithms, with a focus on the Acrobot-v1 environment. The implementations include DQN and REINFORCE algorithms with several enhancements and optimizations.
 
+## DDPG Hyperparameter Tuning for BipedalWalker-v3
+
+This repository contains implementations for training and hyperparameter tuning of a Deep Deterministic Policy Gradient (DDPG) agent on the BipedalWalker-v3 environment. The project is divided into two main parts:
+
+- **Exercise 4:** A baseline implementation of DDPG that includes random warmup, soft target updates, and Gaussian exploration. This script accepts a configuration dictionary to control hyperparameters.
+- **Exercise 5:** An extension that implements hyperparameter tuning using both grid search and Bayesian optimization. In addition, evaluation scripts and analysis utilities are provided to help identify the best-performing checkpoints.
+
+---
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Folder Structure](#folder-structure)
+- [Exercise 4: Baseline DDPG](#exercise-4-baseline-ddpg)
+  - [Key Features](#key-features)
+  - [Usage](#usage)
+- [Exercise 5: Hyperparameter Tuning](#exercise-5-hyperparameter-tuning)
+  - [Grid Search](#grid-search)
+  - [Bayesian Optimization](#bayesian-optimization)
+  - [Evaluation and Analysis](#evaluation-and-analysis)
+- [Enhancements and Improvements](#enhancements-and-improvements)
+- [Results and Experiments](#results-and-experiments)
+- [How to Run](#how-to-run)
+- [Future Directions](#future-directions)
+- [License](#license)
+
+---
+
+## Overview
+
+This project aims to improve the performance of a baseline DDPG agent on the BipedalWalker-v3 environment by systematically exploring hyperparameter spaces. The baseline (Exercise 4) is then extended in Exercise 5 with grid search and Bayesian optimization methods to automatically search for promising hyperparameter configurations. Key techniques include:
+
+- **Learning-Rate Scheduling:** Linearly decaying the learning rates for both actor and critic.
+- **Noise Decay:** Linearly reducing exploration noise over training to improve policy refinement.
+- **Architectural Variations:** Tuning hidden layer sizes (e.g., [400,300] vs. [256,256]) and batch sizes.
+- **Reduced Training Epochs:** Using a smaller number of total timesteps (e.g., 100k–250k) for quicker experiments.
+
+These enhancements are inspired by state-of-the-art methods and practical experience in tuning DDPG for continuous control tasks.
+
+---
+
+## Folder Structure
+
+```
+.
+├── constants.py                   # Contains all experiment constants and default hyperparameters.
+├── exercise4/
+│   ├── train_ddpg.py              # Baseline DDPG training script (accepts a configuration dictionary).
+│   └── evaluate_ddpg.py           # Script to evaluate a checkpoint.
+├── exercise5/
+│   ├── train_ddpg.py              # Grid search hyperparameter tuning script.
+│   ├── train_ddpg_bayesian.py     # Bayesian optimization script for hyperparameter tuning.
+│   └── evaluate_ddpg.py           # Evaluation script (can also be used from exercise4).
+└── util/
+    ├── hparam_sweeping.py         # Utility for generating hyperparameter configurations.
+    └── result_processing.py       # Utility for processing and ranking experiment results.
+```
+
+---
+
+## Exercise 4: Baseline DDPG
+
+### Key Features
+
+- **Configurable Hyperparameters:** Accepts a configuration dictionary with keys such as learning rates, hidden sizes, batch size, warmup steps, etc.
+- **Random Warmup:** Uses random actions for a fixed number of steps to populate the replay buffer.
+- **Soft Target Updates:** Implements soft updates for both actor and critic target networks.
+- **Gaussian Exploration:** Uses a diagonal Gaussian noise process for exploration.
+- **Learning-Rate Scheduling and Noise Decay:** (Enhanced version) Linearly decays learning rates and exploration noise over training.
+
+### Usage
+
+Run the baseline training with:
+```bash
+PYTHONPATH=. python exercise4/train_ddpg.py
+```
+Or, call the `train(env, config)` function from your own script.
+
+---
+
+## Exercise 5: Hyperparameter Tuning
+
+Exercise 5 extends the baseline with automated hyperparameter tuning.
+
+### Grid Search
+
+- **File:** `exercise5/train_ddpg.py`
+- **Purpose:** Run a grid search over a narrowed set of hyperparameters for faster experimentation.
+- **Search Space:**  
+  - **Policy Hidden Size:** `[[256,256], [400,300]]`
+  - **Critic Hidden Size:** `[[256,256], [400,300]]`
+  - **Batch Size:** `[128, 256]`
+  - **Policy Learning Rate:** `[1e-4, 5e-5]`
+  - **Critic Learning Rate:** Fixed at `1e-3`
+  - **Tau:** Fixed at `0.005`
+- **Total Training Timesteps:** 100,000 (for faster convergence during experiments)
+- **Warmup Steps:** 500
+- **Output:** Checkpoint files for each configuration and a results pickle file (`DDPG-Bipedal-sweep-results-ex5.pkl`)
+
+### Bayesian Optimization
+
+- **File:** `exercise5/train_ddpg_bayesian.py`
+- **Purpose:** Use Bayesian optimization (via scikit-optimize) to search over a continuous hyperparameter space.
+- **Search Space (using skopt):**
+  - **Policy Learning Rate:** Real, log-uniform between `1e-5` and `1e-3`
+  - **Batch Size:** Integer between `128` and `256`
+  - **Tau:** Real between `0.001` and `0.01`
+- **Evaluation:** Each configuration is evaluated over multiple seeds, and the negative mean final return is used as the objective.
+- **Output:** Saves results to a pickle file for later analysis.
+
+### Evaluation and Analysis
+
+- **Evaluation Script:** `exercise5/evaluate_ddpg.py` provides a command-line interface to evaluate a saved checkpoint.
+- **Analysis Script (Optional):** You can create an analysis script (e.g., `analyze_results.py`) to load the sweep results pickle file and rank runs to identify the best-performing configuration.
+
+---
+
+## Enhancements and Improvements
+
+- **Learning-Rate Scheduling:**  
+  The baseline now decays both the actor and critic learning rates linearly from a starting value to an ending value over the course of training.
+
+- **Noise Decay:**  
+  The exploration noise standard deviation is also decayed linearly from an initial high value to a lower value as training progresses.
+
+- **Narrower Hyperparameter Grid:**  
+  The grid search has been refined to explore only the most promising hyperparameter ranges (e.g., hidden sizes [256,256] vs. [400,300], learning rates, batch sizes) to reduce training time and get meaningful differences quickly.
+
+- **Modularity:**  
+  The code is modular, with baseline training in Exercise 4 and hyperparameter tuning in Exercise 5. Results and logs are saved for later analysis.
+
+---
+
+## Results and Experiments
+
+After training with these enhanced methods, you should obtain multiple checkpoint files with different hyperparameter configurations. The results file (`DDPG-Bipedal-sweep-results-ex5.pkl`) contains Run objects that record the final return, training time, and configuration details. Use the analysis script to rank these runs and then evaluate the best checkpoint using the provided evaluation script.
+
+**Note:**  
+If the returns remain low (e.g., under -100), consider further adjustments such as increasing total timesteps, fine-tuning the learning-rate schedules, or even trying advanced methods (TD3, SAC) that are known to perform better on BipedalWalker-v3.
+
+---
+
+## How to Run
+
+### Training (Grid Search)
+```bash
+PYTHONPATH=. python exercise5/train_ddpg.py
+```
+This will run the grid search over the specified hyperparameter combinations and save the results.
+
+### Training (Bayesian Optimization)
+```bash
+PYTHONPATH=. python exercise5/train_ddpg_bayesian.py
+```
+This will run Bayesian optimization over the defined search space and save the results.
+
+### Evaluation
+```bash
+PYTHONPATH=. python exercise5/evaluate_ddpg.py --checkpoint_path <checkpoint_file> --episodes 10 --render --env_mode human
+```
+Replace `<checkpoint_file>` with the path to your best checkpoint file as determined by the analysis.
+
+### Analysis (Optional)
+Create and run an analysis script (e.g., `analyze_results.py`) to load and rank your sweep results:
+```bash
+PYTHONPATH=. python analyze_results.py
+```
+
+---
+
+## Future Directions
+
+- **Further Tuning:**  
+  If performance is still unsatisfactory, consider:
+  - Increasing total training timesteps.
+  - Experimenting with different network architectures.
+  - Incorporating reward normalization.
+  - Trying alternative algorithms (e.g., TD3 or SAC).
+
+- **Advanced Bayesian Methods:**  
+  You could also integrate more advanced Bayesian optimization frameworks or multi-fidelity methods to reduce the computational cost further.
+
+---
+
+## Requirements
+
+- Python 3.7+
+- PyTorch
+- Gym (with BipedalWalker-v3 support)
+- scikit-optimize
+- tqdm
+- numpy
+- matplotlib
+
+---
+
+## Setup Instructions
+
+1. Clone the repository.
+2. Create and activate a virtual environment.
+3. Install required packages:
+   ```bash
+   pip install torch gym scikit-optimize tqdm numpy matplotlib
+   ```
+4. Run training and evaluation scripts as described above.
+
+
+## Other implemented RL algorithms
+
 ## Table of Contents
 - [Installation](#installation)
 - [Algorithms](#algorithms)
@@ -182,9 +391,3 @@ ENV_CONFIGS = {
     }
 }
 ```
-
-## Contributing
-Feel free to submit issues and enhancement requests!
-
-## License
-[Your chosen license] 
