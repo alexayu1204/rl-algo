@@ -68,3 +68,6 @@ site/
 .env
 .env.local
 .env.*.local 
+
+# Allow exceptions for files containing 'td' in their name
+!*td3_checkpoint.pt

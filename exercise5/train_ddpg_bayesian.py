@@ -46,10 +46,10 @@ BIPEDAL_CONFIG = {
     "max_timesteps": 250000,
     "max_time": 60 * 60,
     "policy_learning_rate": 1e-4,         # initial default value (will be tuned)
-    "critic_learning_rate": 1e-4,           # fixed for now
+    "critic_learning_rate": 1e-3,           # fixed for now
     "gamma": 0.99,
     "tau": 0.005,                         # fixed for now
-    "batch_size": 256,                    # default value (to be tuned)
+    "batch_size": 128,                    # default value (to be tuned)
     "buffer_capacity": int(1e6),
     "save_filename": "bipedal_q5_latest.pt",
     "algo": "DDPG",
@@ -62,17 +62,20 @@ BIPEDAL_CONFIG = {
 # Define the search space using skopt.space objects:
 search_space = [
     Real(1e-5, 1e-3, prior="log-uniform", name="policy_learning_rate"),
-    Integer(128, 256, name="batch_size"),
-    Real(0.001, 0.01, name="tau"),
+    Real(1e-5, 1e-3, prior="log-uniform", name="critic_learning_rate"),
+    # Integer(128, 256, name="batch_size"),
+    # Real(0.001, 0.01, name="tau"),
 ]
 
 def objective_function(params):
     # The parameters come in the order defined above:
-    policy_lr, batch_size, tau = params
+    # policy_lr, batch_size, tau = params
+    policy_lr, critic_lr = params
     config = copy.deepcopy(BIPEDAL_CONFIG)
     config["policy_learning_rate"] = policy_lr
-    config["batch_size"] = int(batch_size)
-    config["tau"] = tau
+    config["critic_learning_rate"] = critic_lr
+    # config["batch_size"] = int(batch_size)
+    # config["tau"] = tau
 
     run = Run(config)
     # Run multiple seeds per configuration
