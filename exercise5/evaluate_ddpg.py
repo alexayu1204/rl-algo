@@ -1,9 +1,9 @@
 import gym
 from typing import List, Tuple
 
-from rl2023.exercise4.agents import DDPG
-from rl2023.exercise4.evaluate_ddpg import evaluate
-from rl2023.exercise5.train_ddpg \
+from exercise4.agents import DDPG
+from exercise4.evaluate_ddpg import evaluate
+from exercise5.train_ddpg \
     import BIPEDAL_CONFIG
 
 

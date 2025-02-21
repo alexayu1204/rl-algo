@@ -36,38 +36,43 @@ class ReplayBuffer:
         self.position = 0
         self.is_full = False
 
-    def add(self, obs: np.ndarray, action: int, next_obs: np.ndarray, reward: float, done: bool):
-        """Add a new transition to the buffer.
-
-        Args:
-            obs: Current state
-            action: Action taken
-            next_obs: Next state
-            reward: Reward received
-            done: Whether the episode ended
+    def add(self, obs: np.ndarray, action, next_obs: np.ndarray, reward: float, done: bool):
         """
-        # Convert to tensors with correct types
+        Add a new transition to the buffer.
+        For continuous actions (like in DDPG), action is expected to be an array.
+        For discrete actions, action is expected to be a scalar.
+        """
+        # Convert observations to tensors
         state = torch.FloatTensor(obs)
         next_state = torch.FloatTensor(next_obs)
-        action = torch.LongTensor([action])  # Changed to LongTensor for discrete actions
-        reward = torch.FloatTensor([reward])
-        done = torch.FloatTensor([float(done)])
+        
+        # Check if action is a sequence (e.g. numpy array or list) or a scalar
+        if isinstance(action, (np.ndarray, list)):
+            # For continuous actions, do not wrap in a list.
+            action_tensor = torch.FloatTensor(action)
+        else:
+            # For discrete actions, wrap it as before.
+            action_tensor = torch.LongTensor([action])
+        
+        reward_tensor = torch.FloatTensor([reward])
+        done_tensor = torch.FloatTensor([float(done)])
 
         if len(self.states) < self.size:
             self.states.append(state)
-            self.actions.append(action)
+            self.actions.append(action_tensor)
             self.next_states.append(next_state)
-            self.rewards.append(reward)
-            self.dones.append(done)
+            self.rewards.append(reward_tensor)
+            self.dones.append(done_tensor)
         else:
             self.states[self.position] = state
-            self.actions[self.position] = action
+            self.actions[self.position] = action_tensor
             self.next_states[self.position] = next_state
-            self.rewards[self.position] = reward
-            self.dones[self.position] = done
+            self.rewards[self.position] = reward_tensor
+            self.dones[self.position] = done_tensor
             self.is_full = True
 
         self.position = (self.position + 1) % self.size
+
 
     def sample(self, batch_size: int) -> Transition:
         """Sample a batch of transitions.

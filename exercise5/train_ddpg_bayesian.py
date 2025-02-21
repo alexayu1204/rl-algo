@@ -9,12 +9,12 @@ from tqdm import tqdm
 from typing import List, Tuple, Dict
 import matplotlib.pyplot as plt
 
-from rl2023.constants import EX5_BIPEDAL_CONSTANTS as BIPEDAL_CONSTANTS
-from rl2023.exercise4.agents import DDPG
-from rl2023.exercise4.train_ddpg import train
-from rl2023.exercise3.replay import ReplayBuffer
-from rl2023.util.hparam_sweeping import generate_hparam_configs
-from rl2023.util.result_processing import Run
+from constants import EX5_BIPEDAL_CONSTANTS as BIPEDAL_CONSTANTS
+from exercise4.agents import DDPG
+from exercise4.train_ddpg import train
+from exercise3.replay import ReplayBuffer
+from util.hparam_sweeping import generate_hparam_configs
+from util.result_processing import Run
 
 from skopt import Optimizer
 from skopt.utils import create_result
