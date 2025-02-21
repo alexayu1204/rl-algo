@@ -8,7 +8,7 @@ Usage:
 --checkpoint_path: Path to the checkpoint file.
 --episodes: Number of evaluation episodes.
 --render: Flag to render the environment.
---env_mode: Render mode (e.g., "human" for windowed rendering or "rgb_array").
+--env_mode: Render mode (e.g., "human" or "rgb_array").
 """
 
 import argparse
@@ -19,11 +19,12 @@ import torch.nn as nn
 if not hasattr(np, 'bool8'):
     np.bool8 = np.bool_
 
-# Device selection: use CUDA if available, else CPU.
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+if torch.cuda.is_available():
+    device = torch.device("cuda")
+else:
+    device = torch.device("cpu")
 print("Using device:", device)
 
-# ----- Define actor network architecture (must match baseline) -----
 class FCNetwork(nn.Module):
     def __init__(self, dims, output_activation=None):
         super().__init__()
@@ -75,17 +76,15 @@ def evaluate(checkpoint_path, num_episodes=5, render=False, env_mode=None):
         done = False
         ep_reward = 0.0
         while not done:
-            if render:
-                env.render()
             action = agent.select_action(state)
             state, reward, done, truncated, _ = env.step(action)
             done = done or truncated
             ep_reward += reward
         returns.append(ep_reward)
         print(f"Episode {ep+1}: Reward = {ep_reward:.2f}")
-    env.close()
     avg_return = np.mean(returns)
     print("Average Return:", avg_return)
+    env.close()
     return returns
 
 if __name__ == "__main__":

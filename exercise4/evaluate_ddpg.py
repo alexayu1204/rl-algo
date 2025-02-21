@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 """
 Evaluate the DDPG agent for BipedalWalker-v3 using a configuration.
-This function runs a number of evaluation episodes (without exploration noise)
-and returns the episode rewards.
+Runs a number of evaluation episodes (without exploration noise) and returns episode rewards.
 Usage: evaluate(env, config)
 """
 
@@ -16,6 +15,8 @@ if torch.cuda.is_available():
 else:
     device = torch.device("cpu")
 print("Using device:", device)
+if not hasattr(np, 'bool8'):
+    np.bool8 = np.bool_
 
 class FCNetwork(nn.Module):
     def __init__(self, dims, output_activation=None):
@@ -51,6 +52,7 @@ def evaluate(env, config, eval_episodes=None):
     if eval_episodes is None:
         eval_episodes = config.get("eval_episodes", 5)
     state_dim = env.observation_space.shape[0]
+    action_dim = env.observation_space.shape[0] if len(env.observation_space.shape)==1 else env.observation_space.shape[0]
     action_dim = env.action_space.shape[0]
     action_bound = env.action_space.high[0]
     agent = DDPGAgent(state_dim, action_dim, action_bound, device)

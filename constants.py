@@ -80,12 +80,21 @@ EX4_BIPEDAL_CONSTANTS = {
 
 EX5_BIPEDAL_CONSTANTS = {
     "env": "BipedalWalker-v3",
-    "eval_freq": 20000,
-    "eval_episodes": 100,
+    "eval_freq": 10000,
+    "eval_episodes": 5,
     "target_return": 300.0,
     "episode_length": 1600,
-    "max_timesteps": 1500000,
-    "max_time": 360 * 60,
+    "max_timesteps": 250000,   # Total epochs increased to 250000
+    "max_time": 60 * 60,       # 1 hour max training time
     "save_filename": "bipedal_q5_latest.pt",
     "algo": "DDPG",
+    "policy_learning_rate": 1e-4,
+    "critic_learning_rate": 1e-3,
+    "gamma": 0.99,
+    "tau": 0.005,
+    "batch_size": 256,
+    "buffer_capacity": int(1e6),
+    "warmup_steps": 500,       # Fewer warmup steps for faster learning
+    "policy_hidden_size": [400, 300],
+    "critic_hidden_size": [400, 300],
 }
