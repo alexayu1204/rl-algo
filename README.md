@@ -6,8 +6,30 @@ This repository contains implementations of various reinforcement learning algor
 
 This repository contains implementations for training and hyperparameter tuning of a Deep Deterministic Policy Gradient (DDPG) agent on the BipedalWalker-v3 environment. The project is divided into two main parts:
 
-- **Exercise 4:** A baseline implementation of DDPG that includes random warmup, soft target updates, and Gaussian exploration. This script accepts a configuration dictionary to control hyperparameters.
-- **Exercise 5:** An extension that implements hyperparameter tuning using both grid search and Bayesian optimization. In addition, evaluation scripts and analysis utilities are provided to help identify the best-performing checkpoints.
+- A baseline implementation of DDPG that includes random warmup, soft target updates, and Gaussian exploration. This script accepts a configuration dictionary to control hyperparameters.
+- An extension that implements hyperparameter tuning using both grid search and Bayesian optimization. In addition, evaluation scripts and analysis utilities are provided to help identify the best-performing checkpoints.
+
+---
+
+## TD3 (Twin Delayed DDPG)
+
+TD3 is an enhanced version of DDPG designed to address its overestimation and instability issues. It incorporates three key improvements:
+
+- **Clipped Double-Q Learning:**  
+  Two critic networks are trained; the target Q-value is computed as the minimum of the two critics’ estimates, reducing overestimation bias.
+
+- **Delayed Policy Updates:**  
+  The actor (policy) is updated less frequently than the critics (e.g., one actor update for every two critic updates), which stabilizes training.
+
+- **Target Policy Smoothing:**  
+  Noise is added to the target action and then clipped. This smooths the Q-function, preventing the policy from exploiting errors in the value estimates.
+
+Additional enhancements include:
+- **Reward Normalization:** Using running mean and standard deviation to scale rewards.
+- **Learning-Rate Scheduling:** Linearly decaying the actor and critic learning rates during training.
+- **Layer Normalization & Orthogonal Initialization:** Applied to network layers for improved stability.
+
+These techniques collectively result in a more robust and stable TD3 agent for continuous control tasks like BipedalWalker-v3.
 
 ---
 
